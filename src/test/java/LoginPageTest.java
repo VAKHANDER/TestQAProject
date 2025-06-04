@@ -16,6 +16,8 @@ public class LoginPageTest {
     private static final String INVALID_PASSWORD = "TestPassword";
     private static final String EMPTY_LOGIN = "";
     private static final String EMPTY_PASSWORD = "";
+    private static final String INVALID_DATA_ALERT_MESSAGE = "Неверные данные для авторизации";
+    private static final String EMPTY_DATA_ALERT_MESSAGE = "Неверные данные для авторизации.";
 
     private LoginPage loginPage;
 
@@ -55,30 +57,14 @@ public class LoginPageTest {
     @Test
     void testInvalidLogin() {
         loginPage.login(INVALID_LOGIN, INVALID_PASSWORD);
-        try {
-            WebDriverWait wait = new WebDriverWait(WebDriverRunner.getWebDriver(), Duration.ofSeconds(5));
-            wait.until(ExpectedConditions.alertIsPresent());
-            Alert alert = WebDriverRunner.getWebDriver().switchTo().alert();
-            assertEquals("Неверные данные для авторизации", alert.getText());
-            alert.accept();
-        } catch (NoAlertPresentException e) {
-            fail("Alert didnt exist");
-        }
+        testAlert(INVALID_DATA_ALERT_MESSAGE);
         assertTrue(WebDriverRunner.url().contains("https://qa.copy.mirapolis.ru/mira/Do?"));
     }
 
     @Test
     void testEmptyFieldsLogin() {
         loginPage.login(EMPTY_LOGIN, EMPTY_PASSWORD);
-        try {
-            WebDriverWait wait = new WebDriverWait(WebDriverRunner.getWebDriver(), Duration.ofSeconds(5));
-            wait.until(ExpectedConditions.alertIsPresent());
-            Alert alert = WebDriverRunner.getWebDriver().switchTo().alert();
-            assertEquals("Неверные данные для авторизации.", alert.getText());
-            alert.accept();
-        } catch (NoAlertPresentException e) {
-            fail("Alert didnt exist");
-        }
+        testAlert(EMPTY_DATA_ALERT_MESSAGE);
         assertTrue(WebDriverRunner.url().contains("https://qa.copy.mirapolis.ru/mira/Do?"));
     }
 
@@ -87,5 +73,21 @@ public class LoginPageTest {
         assertTrue(loginPage.getForgotPasswordLink().isDisplayed());
         String href = loginPage.getForgotPasswordLink().getAttribute("href");
         assertTrue(href.contains("type=remindpassword"));
+    }
+
+    // ===================================================================================================================
+    // = Implementation
+    // ===================================================================================================================
+
+    private void testAlert(String message){
+        try {
+            WebDriverWait wait = new WebDriverWait(WebDriverRunner.getWebDriver(), Duration.ofSeconds(5));
+            wait.until(ExpectedConditions.alertIsPresent());
+            Alert alert = WebDriverRunner.getWebDriver().switchTo().alert();
+            assertEquals(message, alert.getText());
+            alert.accept();
+        } catch (NoAlertPresentException e) {
+            fail("Alert didnt exist");
+        }
     }
 }
